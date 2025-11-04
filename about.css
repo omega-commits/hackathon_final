@@ -1,0 +1,240 @@
+:root {
+  --bg: #0f0f0f;
+  --accent: #06b6d4;
+  --muted: #9aa6b2;
+  --white: #f3f3f3;
+  --card: #1a1a1a;
+  --gradient: linear-gradient(90deg, #06b6d4, #4f46e5);
+}
+
+/* Base Styles */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background-color: var(--bg);
+  color: var(--white);
+  font-family: 'Poppins', sans-serif;
+  scroll-behavior: smooth;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 0 60px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+.logo img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  object-fit: cover;
+}
+
+.nav-links {
+  display: flex;
+  gap: 80px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--accent);
+}
+
+.nav-btns {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-btns button {
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-btn {
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+
+.signup-btn {
+  background: var(--gradient);
+  color: var(--bg);
+}
+
+.login-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.signup-btn:hover {
+  opacity: 0.9;
+}
+
+/* Hero Section */
+.about-hero {
+  position: relative;
+  height: 80vh;
+  background: url('https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=1950&q=80') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.about-hero .overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.45); /* lighter overlay to keep image visible */
+}
+
+.about-hero-content {
+  position: relative;
+  z-index: 1;
+  color: var(--white);
+}
+
+.about-hero h1 {
+  font-size: 56px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.about-hero h1 span {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.about-hero p {
+  color: #d1d5db;
+  font-size: 20px;
+}
+
+/* About Section */
+.about-section {
+  padding: 100px 80px;
+  background-color: var(--card);
+}
+
+.about-container {
+  max-width: 900px;
+  margin: 0 auto;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+.about-container h2 {
+  color: var(--accent);
+  font-size: 28px;
+  margin-top: 40px;
+  margin-bottom: 15px;
+}
+
+.about-container p {
+  color: var(--white);
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.about-container ul {
+  margin-top: 10px;
+  margin-left: 20px;
+  color: var(--muted);
+  line-height: 1.8;
+  list-style: none;
+}
+
+.about-container ul li {
+  margin-bottom: 8px;
+}
+
+/* Team Section */
+.team-section {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.team-cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-top: 30px;
+}
+
+.team-card {
+  background-color: #111;
+  border-radius: 16px;
+  padding: 20px;
+  width: 250px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 30px rgba(6,182,212,0.3);
+}
+
+.team-card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+.team-card h4 {
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+.team-card p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+
+/* Footer */
+footer {
+  background-color: #0b0b0b;
+  text-align: center;
+  padding: 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+.fade-up {
+  animation: fadeIn 1.5s ease-in-out;
+}

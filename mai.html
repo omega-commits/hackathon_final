@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Fitness Companion — Demo</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --muted:#9aa6b2; --glass:rgba(255,255,255,0.03);
+      --card-radius:16px;
+    }
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{margin:0;background:linear-gradient(180deg,#071028 0%, #081428 60%);color:#e6f0f2;min-height:100vh}
+    header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px}
+    header .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700}
+    h1{font-size:18px;margin:0}
+    main{display:grid;grid-template-columns:360px 1fr 380px;gap:22px;padding:20px 28px}
+    .card{background:var(--card);border-radius:var(--card-radius);padding:18px;box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+
+    /* Left column (profile + gamification) */
+    .profile .avatar{width:86px;height:86px;border-radius:14px;background:linear-gradient(135deg,#1f2937,#0f1724);display:flex;align-items:center;justify-content:center;font-size:28px}
+    label{display:block;font-size:12px;color:var(--muted);margin-top:12px}
+    input,select,textarea{width:100%;padding:10px;margin-top:6px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:inherit}
+    button{padding:10px 12px;border-radius:10px;border:0;cursor:pointer;background:linear-gradient(90deg,var(--accent),#7c3aed);color:#021022;font-weight:600}
+
+    /* center content (plans, logging) */
+    .plan-list{display:flex;flex-direction:column;gap:12px}
+    .plan{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:12px;background:linear-gradient(0deg, rgba(255,255,255,0.02), transparent)}
+    .plan .meta{font-size:13px;color:var(--muted)}
+
+    /* right column (progress + challenges) */
+    .progress .meter{height:110px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);display:flex;align-items:center;justify-content:center;font-size:22px}
+    .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .badge{padding:8px;border-radius:10px;background:rgba(255,255,255,0.03);font-size:13px}
+
+    footer{padding:18px 28px;color:var(--muted);font-size:13px}
+
+    /* mobile */
+    @media (max-width:1000px){main{grid-template-columns:1fr;padding:12px} .right{order:3}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">A</div>
+      <div>
+        <h1>AI Fitness Companion</h1>
+        <div style="font-size:12px;color:var(--muted)">Personalized plans • Gamified • Adaptive • Privacy-first demo</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button id="simulateStep">Simulate Steps</button>
+      <button id="notifyPerm">Enable Reminders</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="card profile" id="profileCard">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="avatar" id="avatar">U</div>
+        <div style="flex:1">
+          <div id="greet">Welcome!</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Tell me a bit about yourself — I tailor workouts to you.</div>
+        </div>
+      </div>
+      <form id="profileForm" style="margin-top:12px">
+        <label>Name<input id="name" placeholder="e.g. Rick"/></label>
+        <label>Age<input id="age" type="number" min="10" max="100"/></label>
+        <label>Weight (kg)<input id="weight" type="number" min="30" max="300"/></label>
+        <label>Height (cm)<input id="height" type="number" min="100" max="240"/></label>
+        <label>Fitness goal
+          <select id="goal">
+            <option value="maintain">Maintain weight</option>
+            <option value="lose">Lose weight</option>
+            <option value="gain">Gain muscle</option>
+            <option value="endurance">Improve endurance</option>
+          </select>
+        </label>
+        <label>Activity level
+          <select id="activity">
+            <option value="sedentary">Sedentary</option>
+            <option value="light">Lightly active</option>
+            <option value="moderate">Moderately active</option>
+            <option value="high">Highly active</option>
+          </select>
+        </label>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button id="saveProfile" type="button">Save profile</button>
+          <button id="generatePlan" type="button">Generate Plan</button>
+        </div>
+      </form>
+
+      <div style="margin-top:14px">
+        <div style="font-size:13px;color:var(--muted)">Connected devices</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="connectSensor">Connect phone sensors</button>
+          <button id="manualStepAdd">Log steps</button>
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div style="font-size:13px;color:var(--muted)">Quick log</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="quickActivity" placeholder="e.g. 20 pushups, 30min run" />
+          <button id="logActivity">Log</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card center">
+      <h3 style="margin:0">Your personalized plans</h3>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">AI-simulated recommendations (no cloud required in demo).</div>
+
+      <div class="plan-list" id="plans"></div>
+
+      <div style="margin-top:14px;display:flex;gap:8px;align-items:center">
+        <input id="customIntensity" type="range" min="1" max="10" value="5" />
+        <div style="font-size:13px;color:var(--muted)">Adaptive intensity: <span id="intVal">5</span>/10</div>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
+
+      <div>
+        <h4 style="margin:0 0 8px 0">Virtual Coach</h4>
+        <div id="coachText" style="font-size:14px;color:var(--muted)">I’ll nudge you, suggest workouts, and voice-guided tips.</div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="speakTip">Coach: Give tip</button>
+          <button id="adaptiveTune">Auto-tune plan</button>
+        </div>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
+
+      <div>
+        <h4 style="margin:0 0 8px 0">Community challenges</h4>
+        <div style="font-size:13px;color:var(--muted)" id="challengeText">Weekly steps challenge: reach 50,000 steps to earn badge.</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="joinChallenge">Join challenge</button>
+          <button id="viewLeaderboard">Leaderboard</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card right">
+      <h3 style="margin:0">Progress & Rewards</h3>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">Track streaks, points and badges.</div>
+
+      <div class="progress" style="margin-top:12px">
+        <div class="meter" id="pointsMeter">Points: 0</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:13px;color:var(--muted)">Badges</div>
+          <div style="font-size:13px;color:var(--muted)" id="streak">Streak: 0</div>
+        </div>
+        <div class="badges" id="badges"></div>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
+
+      <div>
+        <h4 style="margin:0 0 8px 0">Log history</h4>
+        <div id="logList" style="max-height:240px;overflow:auto;margin-top:8px;color:var(--muted);font-size:13px"></div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    This demo is a front-end prototype that shows how technology + behavioral science can encourage fitness: personalization, frictionless logging, small wins, variable rewards, social proof, and accountability. All data stored locally.
+  </footer>
+
+  <script>
+    /* ---------- Helper & Storage ---------- */
+    const $ = id => document.getElementById(id);
+    const storage = {
+      get(k, d){ try{return JSON.parse(localStorage.getItem(k)) ?? d}catch(e){return d} },
+      set(k,v){ localStorage.setItem(k, JSON.stringify(v)) }
+    }
+
+    /* ---------- Initialize state ---------- */
+    const state = storage.get('afc_state',{profile:null,plans:[],points:0,badges:[],logs:[],joinedChallenge:false,leaderboard:[]});
+
+    function renderProfile(){
+      const p = state.profile;
+      if(!p) return;
+      $('name').value=p.name||''; $('age').value=p.age||''; $('weight').value=p.weight||''; $('height').value=p.height||''; $('goal').value=p.goal||'maintain'; $('activity').value=p.activity||'sedentary';
+      $('avatar').textContent = (p.name||'U').slice(0,1).toUpperCase();
+      $('greet').textContent = `Hi ${p.name||'there'} — let’s make a plan.`;
+    }
+
+    function saveState(){ storage.set('afc_state', state); renderAll(); }
+
+    /* ---------- Plan generation (simple heuristics to simulate AI) ---------- */
+    function generatePlans(){
+      const p = state.profile; if(!p) return alert('Save a profile first')
+      const bmi = (p.weight)/((p.height/100)**2);
+      const baseDur = p.activity==='sedentary' ? 25 : p.activity==='light' ? 18 : 12;
+      const goalFactor = p.goal==='lose' ? 1.2 : p.goal==='gain' ? 1.1 : p.goal==='endurance' ? 1.15 : 1.0;
+      const intensity = Number($('customIntensity').value);
+      const primary = {
+        id:'primary', title: p.goal==='gain'?'Strength Focus':'Balanced Cardio+Strength', duration: Math.round(baseDur*goalFactor),
+        details:`${Math.round(Math.max(15, baseDur*goalFactor*(intensity/5)))} min daily · Mix of bodyweight strength + brisk cardio` }
+      const cardio = {id:'cardio', title:'Cardio Boost', duration: Math.round(baseDur*1.3), details:'Interval runs or cycling; 2-3x/week longer sessions.'}
+      const recovery = {id:'recover', title:'Active Recovery', duration:20, details:'Mobility, stretching and breathing exercises — 3x/week.'}
+      state.plans = [primary,cardio,recovery];
+      saveState();
+      speak(`I generated a ${primary.title} plan for you: ${primary.duration} minutes daily.`)
+    }
+
+    /* ---------- Rendering ---------- */
+    function renderPlans(){
+      const el = $('plans'); el.innerHTML='';
+      state.plans.forEach(pl=>{
+        const node = document.createElement('div'); node.className='plan';
+        node.innerHTML = `<div><strong>${pl.title}</strong><div class='meta'>${pl.details}</div></div><div style='text-align:right'><div style='font-weight:700'>${pl.duration} min</div><div style='margin-top:8px'><button data-id='${pl.id}' class='start'>Start</button></div></div>`;
+        el.appendChild(node);
+      })
+      el.querySelectorAll('.start').forEach(btn=>btn.addEventListener('click', ()=>startPlan(btn.dataset.id)));
+    }
+
+    function renderBadges(){
+      const el = $('badges'); el.innerHTML='';
+      state.badges.forEach(b => { const d = document.createElement('div'); d.className='badge'; d.textContent = b; el.appendChild(d) })
+    }
+
+    function renderLogs(){
+      const el = $('logList'); el.innerHTML = '';
+      state.logs.slice().reverse().forEach(l=>{
+        const d = document.createElement('div'); d.innerHTML = `• <strong>${l.title}</strong> <span style='color:var(--muted)'> — ${new Date(l.t).toLocaleString()}</span>`; el.appendChild(d)
+      })
+    }
+
+    function renderPoints(){ $('pointsMeter').textContent = `Points: ${state.points}`; $('streak').textContent = `Streak: ${computeStreak()}` }
+
+    function renderAll(){ renderProfile(); renderPlans(); renderBadges(); renderLogs(); renderPoints(); }
+
+    /* ---------- Actions: log, start plan, points ---------- */
+    function logActivity(text, pts=10){
+      state.logs.push({title:text,t:Date.now()});
+      state.points += pts; // reward
+      // award simple badges
+      if(state.points >= 100 && !state.badges.includes('100 points')) state.badges.push('100 points');
+      if(state.logs.length >= 7 && !state.badges.includes('7-day log')) state.badges.push('7-day log');
+      // challenge tracking
+      if(state.joinedChallenge){ trackChallengeSteps(); }
+      saveState();
+    }
+
+    function startPlan(id){
+      const pl = state.plans.find(p=>p.id===id); if(!pl) return;
+      // simple timer modal
+      const dur = pl.duration; if(confirm(`Start ${pl.title} — ${dur} minutes? (This demo won't keep running while you do other tasks)`)){
+        logActivity(`Completed ${pl.title} (${dur} min)`, Math.max(8,Math.round(dur/2)));
+        alert('Nice! Workout logged. Points awarded.')
+      }
+    }
+
+    function computeStreak(){
+      // counts last consecutive days with any log
+      const days = new Set(state.logs.map(l=>new Date(l.t).toDateString()));
+      if(days.size===0) return 0;
+      let s=0; let d=new Date(); while(true){ if(days.has(d.toDateString())){s++; d.setDate(d.getDate()-1)} else break }
+      return s;
+    }
+
+    /* ---------- Coach (speech) ---------- */
+    function speak(text){
+      const el = $('coachText'); el.textContent = text;
+      if('speechSynthesis' in window){ const u = new SpeechSynthesisUtterance(text); window.speechSynthesis.cancel(); window.speechSynthesis.speak(u) }
+    }
+
+    /* ---------- Notifications / Reminders ---------- */
+    async function ensureNotificationPerm(){
+      if(!('Notification' in window)) return alert('Notifications not supported');
+      if(Notification.permission==='granted') return true;
+      if(Notification.permission!=='denied'){ const r = await Notification.requestPermission(); return r==='granted' }
+      return false;
+    }
+    async function scheduleReminder(){
+      const ok = await ensureNotificationPerm(); if(!ok) return alert('Enable notifications to get reminders');
+      // simple daily reminder at 9AM local (works only when page open in demo; real app should use push)
+      localStorage.setItem('afc_reminder', 'enabled');
+      alert('Reminders enabled (demo: run while page open). You will see a reminder every minute for demo purposes.');
+      // For the demo: notify every 60s
+      if(window._remInterval) clearInterval(window._remInterval);
+      window._remInterval = setInterval(()=> new Notification('AI Fitness Companion', {body:'Time for a short movement — 5 minutes to win points!'}), 60*1000)
+    }
+
+    /* ---------- Sensor & step simulation ---------- */
+    let simulatedSteps = state.simulatedSteps||0;
+    $('simulateStep').addEventListener('click', ()=>{ simulatedSteps += Math.round(Math.random()*500+100); state.points += 1; state.simulatedSteps = simulatedSteps; storage.set('afc_state',state); alert('Simulated steps added. Total (demo): '+simulatedSteps); renderAll(); })
+
+    $('manualStepAdd').addEventListener('click', ()=>{ const s = Number(prompt('Add steps (numeric):', '1000')); if(!isNaN(s)&&s>0){ simulatedSteps += s; state.points += Math.round(s/500); storage.set('afc_state',state); logActivity(`${s} steps logged`, Math.round(s/500)); alert('Steps logged.'); } })
+
+    $('connectSensor').addEventListener('click', async ()=>{
+      speak('Attempting to connect phone sensors. If your device supports step or motion sensors, allow permissions.');
+      try{
+        // Demo: try for DeviceMotion
+        if('DeviceMotionEvent' in window && typeof DeviceMotionEvent.requestPermission === 'function'){
+          const perm = await DeviceMotionEvent.requestPermission(); if(perm!=='granted') throw 'permission denied';
+        }
+        window.addEventListener('devicemotion', dm=>{
+          // naive step-like detection using acceleration spikes (demo only)
+          const a = Math.abs(dm.accelerationIncludingGravity.x||0) + Math.abs(dm.accelerationIncludingGravity.y||0) + Math.abs(dm.accelerationIncludingGravity.z||0);
+          if(a>20){ simulatedSteps += 1; state.points += 0.1; }
+        })
+        alert('Sensors connected (demo). Motion events will roughly increment steps while page is active on a supported device.');
+      }catch(e){ alert('Couldn\'t connect sensors — this is a demo. ' + e) }
+    })
+
+    /* ---------- Community: challenge & leaderboard ---------- */
+    $('joinChallenge').addEventListener('click', ()=>{
+      if(state.joinedChallenge) return alert('You are already in the challenge.'); state.joinedChallenge = true; saveState(); alert('Joined weekly steps challenge. Good luck!')
+    })
+
+    $('viewLeaderboard').addEventListener('click', ()=>{
+      // demo: local leaderboard
+      const lb = state.leaderboard.length? state.leaderboard : [{name:'You',score:state.points},{name:'Alex',score:200},{name:'Priya',score:150}];
+      let txt = 'Leaderboard (demo):\n\n'; lb.sort((a,b)=>b.score-a.score).forEach((r,i)=>txt += `${i+1}. ${r.name} — ${r.score} pts\n`);
+      alert(txt);
+    })
+
+    function trackChallengeSteps(){
+      // simplistic: if simulatedSteps over threshold award badge
+      if((state.simulatedSteps||0) >= 50000 && !state.badges.includes('50k-week')){ state.badges.push('50k-week'); state.points += 100; saveState(); speak('Congratulations! You earned the 50k steps challenge badge.'); }
+      saveState();
+    }
+
+    /* ---------- UI bindings ---------- */
+    $('saveProfile').addEventListener('click', ()=>{
+      const p = {name:$('name').value||'User',age:Math.max(10,Number($('age').value)||20),weight:Number($('weight').value)||70,height:Number($('height').value)||170,goal:$('goal').value,activity:$('activity').value}
+      state.profile = p; saveState(); speak(`Profile saved. Hi ${p.name}.`)
+    })
+
+    $('generatePlan').addEventListener('click', generatePlans);
+    $('customIntensity').addEventListener('input', ()=>{$('intVal').textContent = $('customIntensity').value})
+    $('logActivity').addEventListener('click', ()=>{ const v = $('quickActivity').value.trim(); if(!v) return alert('Write a quick activity first'); logActivity(v, 10); $('quickActivity').value=''; })
+    $('speakTip').addEventListener('click', ()=>{ const tips = ['Try the 4-minute mobility routine right now.','Micro-workouts (5-10 min) are great for consistency.','Add protein after resistance sessions to help recovery.','Short walks after meals aid digestion.']; const t = tips[Math.floor(Math.random()*tips.length)]; speak(t); })
+    $('adaptiveTune').addEventListener('click', ()=>{
+      // simple adaptation: if points > 50 increase intensity target
+      if(state.points > 50) {$('customIntensity').value = Math.min(10, Number($('customIntensity').value)+1); $('intVal').textContent = $('customIntensity').value; speak('Adaptive tuning applied — intensity slightly increased based on your progress.'); }
+      else speak('Keep going! I will tune plans automatically when you reach more points.');
+    })
+    $('notifyPerm').addEventListener('click', scheduleReminder)
+
+    /* ---------- Leaderboard submission (demo) ---------- */
+    // allow adding a fake teammate (for demo social proof)
+    if(!state.leaderboard || state.leaderboard.length===0) state.leaderboard = [{name:'You',score:state.points}];
+
+    /* ---------- First load ---------- */
+    window.addEventListener('load', ()=>{
+      renderAll();
+      // gentle onboarding if no profile
+      if(!state.profile){ speak('Welcome — enter your details to get a personalized plan.'); }
+    })
+
+    /* ---------- small autosave every 10s ---------- */
+    setInterval(()=>storage.set('afc_state',state),10_000);
+
+    /* ---------- Accessibility: keyboard shortcuts ---------- */
+    window.addEventListener('keydown', e=>{
+      if(e.key==='p') speak('Pause and breathe for 1 minute.');
+      if(e.key==='g') generatePlans();
+    })
+  </script>
+</body>
+</html>
